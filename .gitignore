@@ -1,0 +1,13 @@
+*.com
+*.dll
+*.exe
+*.o
+*.so
+*.log
+*.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+Temp
+Bin
+Obj
