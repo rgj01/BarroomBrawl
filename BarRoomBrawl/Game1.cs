@@ -18,6 +18,7 @@ namespace BarRoomBrawl
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Server Server;
 
         public Game1()
         {
@@ -34,7 +35,8 @@ namespace BarRoomBrawl
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            Server = new Server();
+            Server.Start(4444);
             base.Initialize();
         }
 
