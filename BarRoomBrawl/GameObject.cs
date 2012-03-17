@@ -21,6 +21,7 @@ namespace BarRoomBrawl
         public Texture2D Texture { get; set; }
         public Directions Direction { get; set; }
         public bool mobile {get; set;}
+        public bool solid { get; set; }
 
         public GameObject(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
@@ -31,6 +32,7 @@ namespace BarRoomBrawl
             Direction = startDir;
             Id = id;
             mobile = true;
+            solid = false;
         }
 
         protected GameObject()
@@ -73,54 +75,60 @@ namespace BarRoomBrawl
             double distance = elapsed * Speed;
             Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
 
+            if (solid)
+            {
+                Vector2 Location2 = Location + dir;
+                Debug.WriteLine("Doing collisions for " + this.Id);
+                bool moveOk = true;
+                Vector2 escape = new Vector2();
+                foreach (GameObject o in objects)
+                {
+                    if (o.Id == this.Id)
+                    {
+                        continue;
+                    }
+                    if (Intersects(Location2, o))
+                    {
+                        Debug.WriteLine("Collided with " + o.Id);
+                        moveOk = false;
+                        if (o.Location.X < Location.X)
+                        {
+                            if (o.Location.Y < Location.Y)
+                            {
+                                escape = escapeDownRight;
+                            }
+                            else
+                            {
+                                escape = escapeUpRight;
+                            }
+                        }
+                        else
+                        {
+                            if (o.Location.Y < Location.Y)
+                            {
+                                escape = escapeDownLeft;
+                            }
+                            else
+                            {
+                                escape = escapeUpLeft;
+                            }
+                        }
+                        break;
+                    }
 
-            Vector2 Location2 = Location + dir;
-            Debug.WriteLine("Doing collisions for " + this.Id);
-            bool moveOk = true;
-            Vector2 escape =new Vector2();
-            foreach( GameObject o in objects )
-            {
-                if (o.Id == this.Id)
-                {
-                    continue;
                 }
-                if( Intersects(Location2, o) )
+                if (moveOk)
                 {
-                    Debug.WriteLine("Collided with " + o.Id);
-                    moveOk = false;
-                    if (o.Location.X < Location.X)
-                    {
-                        if (o.Location.Y < Location.Y)
-                        {
-                            escape = escapeDownRight;
-                        }
-                        else
-                        {
-                            escape = escapeUpRight;
-                        }
-                    }
-                    else
-                    {
-                        if (o.Location.Y < Location.Y)
-                        {
-                            escape = escapeDownLeft;
-                        }
-                        else
-                        {
-                            escape = escapeUpLeft;
-                        }
-                    }
-                    break;
+                    Location = Location2;
                 }
-                 
-            }
-            if (moveOk)
-            {
-                Location = Location2;
+                else
+                {
+                    Location = Location + escape;
+                }
             }
             else
             {
-                Location = Location + escape;
+                Location = Location + dir;
             }
         }
 
