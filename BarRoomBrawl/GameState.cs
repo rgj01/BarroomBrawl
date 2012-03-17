@@ -7,13 +7,23 @@ namespace BarRoomBrawl
 {
     class GameState
     {
-        public List<GameObject> StaticObjects { get; set; }
-        public List<GameObject> DynamicObjects { get; set; }
+        private List<GameObject> m_gameObjects;
+        public List<GameObject> GameObjects 
+        {
+            get
+            {
+                return m_gameObjects;
+            }
+        }
 
         public GameState()
         {
-            StaticObjects = new List<GameObject>();
-            DynamicObjects = new List<GameObject>();
+            m_gameObjects = new List<GameObject>();
+        }
+
+        public void Update()
+        {
+            m_gameObjects = m_gameObjects.OrderBy(x => x.Location.Y).ToList();
         }
     }
 }

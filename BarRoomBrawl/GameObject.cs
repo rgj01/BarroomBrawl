@@ -7,8 +7,10 @@ using Microsoft.Xna.Framework;
 
 namespace BarRoomBrawl
 {
-    public class GameObject: IDrawable, IUpdateable
+    public class GameObject
     {
+        protected Game m_game; 
+
         public enum Directions { E, SE, S, SW, W, NW, N, NE }
         public int Id { get; set; }
         public Vector2 Location { get; set; }
@@ -17,14 +19,9 @@ namespace BarRoomBrawl
         public Directions Direction { get; set; }
         public BoundingBox BoundingBox { get; set; }
         
-        // we have no invisible objects
-        public bool Visible
+        public GameObject(Game game, Texture2D texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
-            get { return true; }
-        }
-
-        public GameObject(Texture2D texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
-        {
+            m_game = game;
             Texture = texture;
             Location = startLoc;
             Speed = startSpeed;
@@ -32,42 +29,11 @@ namespace BarRoomBrawl
             Id = id;
         }
 
-        public override void Draw(GameTime gameTime)
+        public void Draw(SpriteBatch batch)
         {
-            
+            batch.Draw(Texture, Location, Color.White);
         }
-
-        public override void Update(GameTime gameTime)
-        {
-            
-        }
-
-
-
-
-        public int DrawOrder
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public event EventHandler<EventArgs> DrawOrderChanged;
 
         
-
-        public event EventHandler<EventArgs> VisibleChanged;
-
-        public bool Enabled
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public event EventHandler<EventArgs> EnabledChanged;
-
-        public int UpdateOrder
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public event EventHandler<EventArgs> UpdateOrderChanged;
     }
 }

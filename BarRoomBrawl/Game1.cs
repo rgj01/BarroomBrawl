@@ -19,6 +19,7 @@ namespace BarRoomBrawl
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -37,6 +38,12 @@ namespace BarRoomBrawl
 
             base.Initialize();
         }
+
+        Map m_map;
+        Player m_player;
+        Camera m_camera;
+        GameState m_state;
+
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -70,8 +77,8 @@ namespace BarRoomBrawl
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
-
+            m_state.Update();
+            
             base.Update(gameTime);
         }
 
@@ -84,8 +91,17 @@ namespace BarRoomBrawl
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullClockwise, null, m_camera.TransformMatrix);
+            m_map.Draw();
+            foreach (GameObject obj in m_state.GameObjects)
+            {
+                obj.Draw(spriteBatch);
+            }
 
+            
             base.Draw(gameTime);
+
+            spriteBatch.End();
         }
     }
 }
