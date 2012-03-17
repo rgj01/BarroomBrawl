@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace BarRoomBrawl
 {
@@ -22,8 +23,12 @@ namespace BarRoomBrawl
             m_gameObjects = new List<GameObject>();
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
+            foreach (GameObject o in m_gameObjects)
+            {
+                o.Update(gameTime, m_gameObjects);
+            }
             m_gameObjects = m_gameObjects.OrderBy(x => x.Location.Y).ToList();
         }
     }

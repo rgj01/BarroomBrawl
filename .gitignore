@@ -12,3 +12,6 @@
 *.ccgame
 # Don't ignore the drivers
 !*.dll
+
+/BarRoomBrawl/bin
+/BarRoomBrawl/obj

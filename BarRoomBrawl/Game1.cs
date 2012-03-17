@@ -41,8 +41,12 @@ namespace BarRoomBrawl
             m_player = new Player(this, "Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
             m_camera = new Camera(Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2));
             m_state = new GameState();
+
+            // TODO ask if the player wants to start a server or join one
             Server = new Server();
             Server.Start(4444);
+
+            StartGame();
             base.Initialize();
         }
 
@@ -63,7 +67,18 @@ namespace BarRoomBrawl
 
             // TODO: use this.Content to load your game content here
             m_map.LoadContent();
-            m_player.LoadContent();
+            foreach( GameObject o in m_state.GameObjects)
+            {
+                o.LoadContent();
+            }
+        }
+
+        protected void StartGame()
+        {
+            m_state.GameObjects.Add(m_player);
+            GameObject table = new GameObject(this, "Player", new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
+            m_state.GameObjects.Add(table);
+
         }
 
         /// <summary>
@@ -133,9 +148,8 @@ namespace BarRoomBrawl
                 m_player.Speed = 0.0f;
             }
 
-            m_player.Update(gameTime);
             m_camera.Update(m_player.Location);
-            m_state.Update();
+            m_state.Update(gameTime);
             
             base.Update(gameTime);
         }
@@ -155,7 +169,7 @@ namespace BarRoomBrawl
             {
                 obj.Draw(spriteBatch);
             }
-            m_player.Draw(spriteBatch);
+            //m_player.Draw(spriteBatch);
             
             base.Draw(gameTime);
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using System.Diagnostics;
 
 namespace BarRoomBrawl
 {
@@ -35,11 +36,13 @@ namespace BarRoomBrawl
 
         }
 
-        public bool Intersects(GameObject other)
+        public bool Intersects(Vector2 position, GameObject other)
         {
-            BoundingBox bb1 = new BoundingBox(new Vector3(this.Location, 0.0f), new Vector3(Location.X + Texture.Width, Location.Y + Texture.Height, 0.0f));
+            BoundingBox bb1 = new BoundingBox(new Vector3(position, 0.0f), new Vector3(Location.X + Texture.Width, Location.Y + Texture.Height, 0.0f));
+            Debug.WriteLine("Bounding box 1" + bb1);
 
             BoundingBox bb2 = new BoundingBox(new Vector3(other.Location, 0.0f), new Vector3(other.Location.X + other.Texture.Width, other.Location.Y + other.Texture.Height, 0.0f));
+            Debug.WriteLine("Bounding box 2" + bb2);
 
             return (bb1.Intersects(bb2));
         }
@@ -54,12 +57,34 @@ namespace BarRoomBrawl
             batch.Draw(Texture, Location, Color.White);
         }
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime, List<GameObject> objects)
         {
+
             double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
             double distance = elapsed * Speed;
             Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
-            Location = Location + dir;
+
+            Vector2 Location2 = Location + dir;
+            Debug.WriteLine("Doing collisions for " + this.Id);
+            bool moveOk = true;
+            foreach( GameObject o in objects )
+            {
+                if (o.Id == this.Id)
+                {
+                    continue;
+                }
+                if( Intersects(Location2, o) )
+                {
+                    Debug.WriteLine("Collided with " + o.Id);
+                    moveOk = false;
+                    break;
+                }
+                 
+            }
+            if( moveOk )
+            {
+                Location = Location2;
+            }
         }
 
         
