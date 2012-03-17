@@ -20,6 +20,7 @@ namespace BarRoomBrawl
         public float Speed { get; set; }
         public Texture2D Texture { get; set; }
         public Directions Direction { get; set; }
+        public bool mobile {get; set;}
 
         public GameObject(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
@@ -29,6 +30,7 @@ namespace BarRoomBrawl
             Speed = startSpeed;
             Direction = startDir;
             Id = id;
+            mobile = true;
         }
 
         protected GameObject()
@@ -59,6 +61,9 @@ namespace BarRoomBrawl
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects)
         {
+            if (!mobile)
+                return;
+
             Vector2 escapeUpLeft = new Vector2(-1, -1);
             Vector2 escapeDownLeft = new Vector2(-1, 1);
             Vector2 escapeUpRight = new Vector2(1, -1);
@@ -102,7 +107,7 @@ namespace BarRoomBrawl
                         }
                         else
                         {
-                            escape = escapeUpRight;
+                            escape = escapeUpLeft;
                         }
                     }
                     break;
