@@ -29,7 +29,7 @@ namespace BarRoomBrawl
 
         public override void Draw(SpriteBatch batch)
         {
-            batch.Draw(Texture, new Rectangle(0, 0, Texture.Width, Texture.Height), new Rectangle(0, 0, 36, 72), Color.White);
+            batch.Draw(Texture, Location, new Rectangle(0, 0, 36, 72), Color.White);
         }
 
         public void UnloadContent()

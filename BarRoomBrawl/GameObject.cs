@@ -12,7 +12,8 @@ namespace BarRoomBrawl
         protected Game m_game;
         protected string m_textureName;
 
-        public enum Directions { E, SE, S, SW, W, NW, N, NE }
+        public enum Directions { E = 0, SE, S, SW, W, NW, N, NE }
+        protected Vector2[] m_directionTransforms = { new Vector2(1, 0), new Vector2(1, -1), new Vector2(0, -1), new Vector2(-1, -1), new Vector2(-1, 0), new Vector2(-1, 1), new Vector2(0, 1), new Vector2(1, 1) };
         public int Id { get; set; }
         public Vector2 Location { get; set; }
         public float Speed { get; set; }
@@ -51,6 +52,14 @@ namespace BarRoomBrawl
         public virtual void Draw(SpriteBatch batch)
         {
             batch.Draw(Texture, Location, Color.White);
+        }
+
+        public virtual void Update(GameTime gameTime)
+        {
+            double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
+            double distance = elapsed * Speed;
+            Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
+            Location = Location + dir;
         }
 
         

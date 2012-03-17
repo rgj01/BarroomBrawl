@@ -85,7 +85,55 @@ namespace BarRoomBrawl
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+            KeyboardState state = Keyboard.GetState();
+            Keys[] keys = Keyboard.GetState().GetPressedKeys();
 
+            m_player.Speed = 0.2f;
+
+            if (state.IsKeyDown(Keys.D))
+            {
+                if (state.IsKeyDown(Keys.W))
+                {
+                    m_player.Direction = GameObject.Directions.SE;
+                }
+                else if (state.IsKeyDown(Keys.S))
+                {
+                    m_player.Direction = GameObject.Directions.NE;
+                }
+                else
+                {
+                    m_player.Direction = GameObject.Directions.E;
+                }
+            }
+            else if (state.IsKeyDown(Keys.A))
+            {
+                if (state.IsKeyDown(Keys.W))
+                {
+                    m_player.Direction = GameObject.Directions.SW;
+                }
+                else if (state.IsKeyDown(Keys.S))
+                {
+                    m_player.Direction = GameObject.Directions.NW;
+                }
+                else
+                {
+                    m_player.Direction = GameObject.Directions.W;
+                }
+            }
+            else if (state.IsKeyDown(Keys.W))
+            {
+                m_player.Direction = GameObject.Directions.S;
+            }
+            else if (state.IsKeyDown(Keys.S))
+            {
+                m_player.Direction = GameObject.Directions.N;
+            }
+            else
+            {
+                m_player.Speed = 0.0f;
+            }
+
+            m_player.Update(gameTime);
             m_state.Update();
             
             base.Update(gameTime);
