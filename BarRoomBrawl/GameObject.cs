@@ -59,14 +59,20 @@ namespace BarRoomBrawl
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects)
         {
+            Vector2 escapeUpLeft = new Vector2(-1, -1);
+            Vector2 escapeDownLeft = new Vector2(-1, 1);
+            Vector2 escapeUpRight = new Vector2(1, -1);
+            Vector2 escapeDownRight = new Vector2(1, 1);
 
             double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
             double distance = elapsed * Speed;
             Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
 
+
             Vector2 Location2 = Location + dir;
             Debug.WriteLine("Doing collisions for " + this.Id);
             bool moveOk = true;
+            Vector2 escape =new Vector2();
             foreach( GameObject o in objects )
             {
                 if (o.Id == this.Id)
@@ -77,13 +83,39 @@ namespace BarRoomBrawl
                 {
                     Debug.WriteLine("Collided with " + o.Id);
                     moveOk = false;
+                    if (o.Location.X < Location.X)
+                    {
+                        if (o.Location.Y < Location.Y)
+                        {
+                            escape = escapeDownRight;
+                        }
+                        else
+                        {
+                            escape = escapeUpRight;
+                        }
+                    }
+                    else
+                    {
+                        if (o.Location.Y < Location.Y)
+                        {
+                            escape = escapeDownLeft;
+                        }
+                        else
+                        {
+                            escape = escapeUpRight;
+                        }
+                    }
                     break;
                 }
                  
             }
-            if( moveOk )
+            if (moveOk)
             {
                 Location = Location2;
+            }
+            else
+            {
+                Location = Location + escape;
             }
         }
 
