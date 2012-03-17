@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BarRoomBrawl
 {
+    [Serializable()]
     class GameState
     {
         private List<GameObject> m_gameObjects;

@@ -18,6 +18,7 @@ namespace BarRoomBrawl
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Server Server;
 
 
         public Game1()
@@ -40,6 +41,8 @@ namespace BarRoomBrawl
             m_player = new Player(this, "Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
             m_camera = new Camera(Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2));
             m_state = new GameState();
+            Server = new Server();
+            Server.Start(4444);
             base.Initialize();
         }
 

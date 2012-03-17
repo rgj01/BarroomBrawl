@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="Map.cs" />
