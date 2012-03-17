@@ -134,6 +134,7 @@ namespace BarRoomBrawl
             }
 
             m_player.Update(gameTime);
+            m_camera.Update(m_player.Location);
             m_state.Update();
             
             base.Update(gameTime);
@@ -148,7 +149,7 @@ namespace BarRoomBrawl
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullNone, null, m_camera.TransformMatrix);
             m_map.Draw(spriteBatch);
             foreach (GameObject obj in m_state.GameObjects)
             {

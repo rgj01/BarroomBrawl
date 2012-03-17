@@ -27,7 +27,7 @@ namespace BarRoomBrawl
         {
 
             Rectangle rect = new Rectangle(0, 0, 10 * Texture.Width, 10 * Texture.Height);
-            spriteBatch.Draw(Texture, rect, null, Color.White);
+            spriteBatch.Draw(Texture, Vector2.Zero, rect, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
                 
         }
 
