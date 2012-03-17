@@ -9,6 +9,7 @@ namespace BarRoomBrawl
     public class GameObject
     {
         public enum Direction { E, SE, S, SW, W, NW, N, NE }
+        public int Id { get; set; }
         public int LocationX { get; set; }
         public int LocationY { get; set; }
         public Texture2D Texture { get; set; }
