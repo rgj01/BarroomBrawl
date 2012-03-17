@@ -9,6 +9,7 @@ namespace BarRoomBrawl
     public class Camera
     {
         private Vector2 m_position;
+        private Vector2 m_origin;
 
         private const int height = 5;
         private const int ytranslate = 10;
@@ -18,13 +19,15 @@ namespace BarRoomBrawl
         {
             get
             {
-                return Matrix.CreateTranslation(m_position.X - xtranslate, m_position.Y - ytranslate, height);
+                return Matrix.CreateTranslation(new Vector3(-m_position,0))
+                    * Matrix.CreateTranslation(new Vector3 (m_origin,0));
             }
         }
 
-        public Camera(Vector2 center)
+        public Camera(Vector2 center, Vector2 origin)
         {
             m_position = center;
+            m_origin = origin;
         }
 
         public void Update(Vector2 center)

@@ -15,15 +15,21 @@ namespace BarRoomBrawl
         public int CarriedItemId { get; set; }
         public int ServerAssignedId { get; set; }
 
-        public Player(Game game, Texture2D texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
+        public Player(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
             : base(game, texture, startLoc, startSpeed, startDir, id)
         {
 
         }
 
-        public void LoadContent()
+        public override void LoadContent()
         {
-            Texture = m_game.Content.Load<Texture2D>("Player");
+            m_textureName = "Player";
+            base.LoadContent();
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            batch.Draw(Texture, new Rectangle(0, 0, Texture.Width, Texture.Height), new Rectangle(0, 0, 36, 72), Color.White);
         }
 
         public void UnloadContent()

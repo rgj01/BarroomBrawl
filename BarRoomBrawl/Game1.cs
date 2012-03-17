@@ -36,6 +36,10 @@ namespace BarRoomBrawl
         {
             // TODO: Add your initialization logic here
 
+            m_map = new Map(this);
+            m_player = new Player(this, "Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
+            m_camera = new Camera(Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2));
+            m_state = new GameState();
             base.Initialize();
         }
 
@@ -55,6 +59,8 @@ namespace BarRoomBrawl
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            m_map.LoadContent();
+            m_player.LoadContent();
         }
 
         /// <summary>
@@ -91,13 +97,13 @@ namespace BarRoomBrawl
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullClockwise, null, m_camera.TransformMatrix);
-            m_map.Draw();
+            spriteBatch.Begin();
+            m_map.Draw(spriteBatch);
             foreach (GameObject obj in m_state.GameObjects)
             {
                 obj.Draw(spriteBatch);
             }
-
+            m_player.Draw(spriteBatch);
             
             base.Draw(gameTime);
 

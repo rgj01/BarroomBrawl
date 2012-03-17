@@ -3,41 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace BarRoomBrawl
 {
-    public class Map : IDrawable 
+    public class Map : GameObject
     {
-        List<GameObject> m_mapObjects;
-        List<Player> m_players;
 
-        public Map()
+        public Map(Game game)
         {
-        }
-
-        public void Draw()
-        {
+            m_game = game;
+            
 
         }
 
-        public void Draw(GameTime gameTime)
+        public override void LoadContent()
         {
-            throw new NotImplementedException();
+            m_textureName = "FloorTile";
+            base.LoadContent();
         }
 
-        public int DrawOrder
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            get { throw new NotImplementedException(); }
+
+            Rectangle rect = new Rectangle(0, 0, 10 * Texture.Width, 10 * Texture.Height);
+            spriteBatch.Draw(Texture, rect, null, Color.White);
+                
         }
 
-        public event EventHandler<EventArgs> DrawOrderChanged;
 
-        // map will never be invisible
-        public bool Visible
-        {
-            get { return true; }
-        }
 
-        public event EventHandler<EventArgs> VisibleChanged;
     }
 }
