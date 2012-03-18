@@ -22,27 +22,40 @@ namespace BarRoomBrawl
             Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public bool Connect(string IPAddr, int port)
+        public Player Connect(string IPAddr, int port)
         {
             IPAddress addr = IPAddress.Parse(IPAddr);
+            Player p = null;
             try
             {
                 Socket.Connect(addr, port);
+                GameMessage join = new GameMessage();
+                join.messageType = "Join";
+                byte[] outbytes = join.toBytes();
+                Debug.WriteLine("Outbytes length: {0}", outbytes.Length);
+                Socket.Send(outbytes);
+
+                Socket.Receive(Buffer);
+
+                GameMessage response = GameMessage.fromBytes(Buffer);
+
+                p = response.PlayerState;
             }
             catch (SocketException e)
             {
                 Debug.WriteLine("Failed to connect: " + e.Message);
-                return false;
+                return null;
             }
 
             SocketAsyncEventArgs rec_args = new SocketAsyncEventArgs();
             rec_args.Completed += ReceiveData;
             rec_args.SetBuffer(Buffer, 0, 2056);
-            return true;
+            return p;
         }
         private void ReceiveData(object sender, SocketAsyncEventArgs args)
         {
             MemoryStream ms = new MemoryStream(args.Buffer);
+            ms.Position = 0;
             BinaryFormatter decoder = new BinaryFormatter();
             GameMessage gm = (GameMessage)decoder.Deserialize(ms);
             HandleMessage(gm);
@@ -64,9 +77,14 @@ namespace BarRoomBrawl
         {
             GameMessage gm = new GameMessage();
             gm.messageType = "PlayerUpdate";
+            gm.PlayerState = player;
             BinaryFormatter serial = new BinaryFormatter();
-            NetworkStream n = new NetworkStream(Socket);
-            serial.Serialize(n, gm);
+            //NetworkStream n = new NetworkStream(Socket);
+            MemoryStream ms = new MemoryStream();
+            serial.Serialize(ms, gm);
+            //serial.Serialize(n, gm);
+            ms.Position = 0;
+            Socket.Send(ms.GetBuffer());
 
         }
 

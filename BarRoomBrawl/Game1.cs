@@ -20,12 +20,17 @@ namespace BarRoomBrawl
         SpriteBatch spriteBatch;
         Server Server;
         Client Client;
-        int PlayerId;
+        int sinceLastSend;
+        Dictionary<String, Texture2D> TextDict;
+
 
         public Game1()
         {
+
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            sinceLastSend = 0;
+            TextDict = new Dictionary<String, Texture2D>();
         }
 
         /// <summary>
@@ -38,17 +43,16 @@ namespace BarRoomBrawl
         {
             // TODO: Add your initialization logic here
 
-            m_map = new Map(this);
-            m_player = new Player(this, "Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
+            m_map = new Map();
             m_camera = new Camera(Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2));
             m_state = new GameState();
 
-            // TODO ask if the player wants to start a server or join one
-            Server = new Server();
-            Server.Start(4444);
-            
+            // TODO ask if the player wants to start a server or join one            
 
-            StartGame();
+            if (Server != null)
+            {
+                StartGame();
+            }
             base.Initialize();
         }
 
@@ -68,17 +72,21 @@ namespace BarRoomBrawl
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            m_map.LoadContent();
-            foreach( GameObject o in m_state.GameObjects)
+
+            String[] textures = { "Player", "Table", "FloorTile" };
+
+            foreach(String texture in textures)
             {
-                o.LoadContent();
+                Texture2D texture2d = Content.Load<Texture2D>(texture);
+                TextDict.Add(texture, texture2d);
             }
         }
 
         protected void StartGame()
         {
+            m_player = new Player("Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
             m_state.GameObjects.Add(m_player);
-            GameObject table = new GameObject(this, "Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
+            GameObject table = new GameObject("Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
             table.Mobile = false;
             m_state.GameObjects.Add(table);
 
@@ -91,6 +99,10 @@ namespace BarRoomBrawl
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            foreach(Texture2D t in TextDict.Values)
+            {
+                t.Dispose();
+            }
         }
 
         /// <summary>
@@ -105,6 +117,7 @@ namespace BarRoomBrawl
                 this.Exit();
             KeyboardState state = Keyboard.GetState();
             Keys[] keys = Keyboard.GetState().GetPressedKeys();
+
 
             m_player.Speed = 0.2f;
 
@@ -159,15 +172,31 @@ namespace BarRoomBrawl
                     m_state.ReplacePlayer(p);
                 }
             }
-            else
-            {
-                var players = from player in m_state.GameObjects where player.Id == PlayerId select player;
-                Client.SendUpdate((Player)players.First());
-            }
+
 
             m_camera.Update(m_player.Location);
             m_state.Update(gameTime);
-
+            sinceLastSend += gameTime.ElapsedGameTime.Milliseconds;
+            if (sinceLastSend > 50)
+            {
+                if (Server != null)
+                {
+                    Server.BroadcastState(m_state);
+                }
+                else
+                {
+                    var players = from player in m_state.GameObjects where player.Id == m_player.Id select player;
+                    try
+                    {
+                        Client.SendUpdate((Player)players.First());
+                    }
+                    catch (Exception e)
+                    {
+                        this.Exit();
+                    }
+                }
+                sinceLastSend = 0;
+            }
             base.Update(gameTime);
         }
 
@@ -181,16 +210,35 @@ namespace BarRoomBrawl
 
             // TODO: Add your drawing code here
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullNone, null, m_camera.TransformMatrix);
-            m_map.Draw(spriteBatch);
+            m_map.Draw(TextDict, spriteBatch);
             foreach (GameObject obj in m_state.GameObjects)
             {
-                obj.Draw(spriteBatch);
+                obj.Draw(TextDict, spriteBatch);
             }
             //m_player.Draw(spriteBatch);
             
             base.Draw(gameTime);
 
             spriteBatch.End();
+        }
+
+        internal void IsClient(bool p)
+        {
+            if (!p)
+            {
+                Server = new Server();
+                Server.Start(4444);
+            }
+            else
+            {
+                Client = new Client();
+                m_player = Client.Connect("192.168.1.45", 4444);
+
+                if (m_player == null)
+                {
+                    this.Exit();
+                }
+            }
         }
     }
 }
