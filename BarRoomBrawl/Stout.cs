@@ -13,6 +13,7 @@ namespace BarRoomBrawl
             : base("Stout", new Vector2(10, 14), startLoc, startSpeed, startDir, id)
         {
             pickedup = false;
+            Bounds = new Vector2(16, 16);
         }
 
 
