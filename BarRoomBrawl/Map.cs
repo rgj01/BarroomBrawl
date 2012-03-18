@@ -20,7 +20,7 @@ namespace BarRoomBrawl
 
         public override void LoadContent()
         {
-            m_floorTexture = m_game.Content.Load<Texture2D>("FloorTile");
+            m_floorTexture = m_game.Content.Load<Texture2D>("FloorTile2");
         }
 
         public override void Draw(SpriteBatch spriteBatch)

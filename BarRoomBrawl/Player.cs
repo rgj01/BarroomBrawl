@@ -19,6 +19,7 @@ namespace BarRoomBrawl
             : base(game, "Player", new Vector2(36, 72), startLoc, startSpeed, startDir, id)
         {
             this.Solid = true;
+            Speed = 0.2f;
         }
 
         public override void Draw(SpriteBatch batch)

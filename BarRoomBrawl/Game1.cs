@@ -78,9 +78,15 @@ namespace BarRoomBrawl
         protected void StartGame()
         {
             m_state.GameObjects.Add(m_player);
-            GameObject table = new GameObject(this, "Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
-            table.Mobile = false;
-            m_state.GameObjects.Add(table);
+            for (int i = 1; i < 6; i++)
+            {
+                for (int j = 1; j < 4; j++)
+                {
+                    GameObject table = new GameObject(this, "Table", new Vector2(24, 42), new Vector2(150*j, 150 * i), 0.0f, GameObject.Directions.N, 1);
+                    table.Mobile = false;
+                    m_state.GameObjects.Add(table);
+                }
+            }
 
         }
 
@@ -103,53 +109,13 @@ namespace BarRoomBrawl
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+
             KeyboardState state = Keyboard.GetState();
-            Keys[] keys = Keyboard.GetState().GetPressedKeys();
 
-            m_player.Speed = 0.2f;
-
-            if (state.IsKeyDown(Keys.D))
-            {
-                if (state.IsKeyDown(Keys.W))
-                {
-                    m_player.Direction = GameObject.Directions.SE;
-                }
-                else if (state.IsKeyDown(Keys.S))
-                {
-                    m_player.Direction = GameObject.Directions.NE;
-                }
-                else
-                {
-                    m_player.Direction = GameObject.Directions.E;
-                }
-            }
-            else if (state.IsKeyDown(Keys.A))
-            {
-                if (state.IsKeyDown(Keys.W))
-                {
-                    m_player.Direction = GameObject.Directions.SW;
-                }
-                else if (state.IsKeyDown(Keys.S))
-                {
-                    m_player.Direction = GameObject.Directions.NW;
-                }
-                else
-                {
-                    m_player.Direction = GameObject.Directions.W;
-                }
-            }
-            else if (state.IsKeyDown(Keys.W))
-            {
-                m_player.Direction = GameObject.Directions.S;
-            }
-            else if (state.IsKeyDown(Keys.S))
-            {
-                m_player.Direction = GameObject.Directions.N;
-            }
-            else
-            {
-                m_player.Speed = 0.0f;
-            }
+            m_player.Direction =  (GameObject.Directions) ((int)(state.IsKeyDown(Keys.W) ? GameObject.Directions.N : 0)
+                                                         + (int)(state.IsKeyDown(Keys.S) ? GameObject.Directions.S : 0)
+                                                         + (int)(state.IsKeyDown(Keys.A) ? GameObject.Directions.W : 0)
+                                                         + (int)(state.IsKeyDown(Keys.D) ? GameObject.Directions.E : 0));
 
             if (Server != null)
             {
