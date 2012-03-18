@@ -24,6 +24,7 @@ namespace BarRoomBrawl
             Health = 500;
             drunkennessClock = 0;
             this.Solid = true;
+            Speed = 0.2f;
             invtimer = 0;
         }
 
@@ -59,12 +60,12 @@ namespace BarRoomBrawl
             else if (Direction == Directions.NE)
             {
                 ploc.X += punchdist + Bounds.X;
-                ploc.Y += punchdist;
+                ploc.Y -= punchdist;
             }
             else if (Direction == Directions.SE)
             {
                 ploc.X += punchdist + Bounds.X;
-                ploc.Y -= punchdist - Bounds.Y;
+                ploc.Y += punchdist + Bounds.Y;
             }
             if (Direction == Directions.W)
             {
@@ -73,23 +74,23 @@ namespace BarRoomBrawl
             else if (Direction == Directions.NW)
             {
                 ploc.X -= punchdist;
-                ploc.Y += punchdist;
+                ploc.Y -= punchdist;
             }
             else if (Direction == Directions.SW)
             {
                 ploc.X = punchdist;
-                ploc.Y -= punchdist - Bounds.Y;
+                ploc.Y += punchdist + Bounds.Y;
             }
             else if (Direction == Directions.N)
             {
-                ploc.Y += punchdist;
+                ploc.Y -= punchdist;
             }
             else if (Direction == Directions.S)
             {
-                ploc.Y -= punchdist;
+                ploc.Y += punchdist;
             }
 
-            Punch punch = new Punch("Player", ploc, 0.0f, Direction, Id + 200, Id);
+            Punch punch = new Punch("Player", ploc, 0.0f, Direction, Id + 200, Id, Drunkenness);
             return punch;
         }
 

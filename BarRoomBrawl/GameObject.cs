@@ -13,8 +13,33 @@ namespace BarRoomBrawl
     {
         protected string m_textureName;
 
-        public enum Directions { E = 0, SE, S, SW, W, NW, N, NE }
-        protected Vector2[] m_directionTransforms = { new Vector2(1, 0), new Vector2(1, -1), new Vector2(0, -1), new Vector2(-1, -1), new Vector2(-1, 0), new Vector2(-1, 1), new Vector2(0, 1), new Vector2(1, 1) };
+        // S -1 + E 4 = SE 3
+        // S -1 + W -4 = SW -5
+        // N 1 + E 4 = NE 5
+        // N 1 + W -4 = NW -3
+        public enum Directions {  SW = -5, W = -4, NW = -3, N = -1, None = 0, S = 1, SE = 3, E = 4,  NE = 5  }
+
+        private Vector2 getMovementVector(Directions dir)
+        {
+            Vector2[] directionTransforms = 
+            { 
+                new Vector2(-0.7071067811865f, -0.7071067811865f), // SW
+                new Vector2(-1, 0), // W
+                new Vector2(-0.7071067811865f, 0.7071067811865f), // NW
+                Vector2.Zero,
+                new Vector2(0, -1), // S
+                Vector2.Zero, // None
+                new Vector2(0, 1), // N
+                Vector2.Zero,
+                new Vector2(0.7071067811865f, -0.7071067811865f), // SE
+                new Vector2(1, 0), // E
+                new Vector2(0.7071067811865f, 0.7071067811865f)  // NE
+            };
+
+            int offset = 5 + (int)dir;
+            return directionTransforms[offset];
+        }
+
         public int Id { get; set; }
         public Vector2 Location { get; set; }
         public Vector2 Bounds { get; set; }
@@ -43,13 +68,17 @@ namespace BarRoomBrawl
 
         public bool Intersects(GameObject other)
         {
-            BoundingBox bbThis = new BoundingBox(new Vector3(Location, 0.0f), new Vector3(Location.X + Bounds.X, Location.Y + Bounds.Y, 0.0f));
-            //Debug.WriteLine("Bounding box for this object: " + bbThis);
+            if (Location.X + Bounds.X < other.Location.X || Location.X > other.Location.X + other.Bounds.X)
+            {
+                return false;
+            }
 
-            BoundingBox bbOther = new BoundingBox(new Vector3(other.Location, 0.0f), new Vector3(other.Location.X + other.Bounds.X, other.Location.Y + other.Bounds.Y, 0.0f));
-            //Debug.WriteLine("Bounding box for other object:" + bbOther);
+            if (Location.Y + Bounds.Y < other.Location.Y || Location.Y > other.Location.Y + other.Bounds.Y)
+            {
+                return false;
+            }
 
-            return (bbThis.Intersects(bbOther));
+            return true;
         }
 
         public virtual void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
@@ -63,23 +92,16 @@ namespace BarRoomBrawl
             if (!Mobile)
                 return;
 
-            Vector2 escapeUpLeft = new Vector2(-1, -1);
-            Vector2 escapeDownLeft = new Vector2(-1, 1);
-            Vector2 escapeUpRight = new Vector2(1, -1);
-            Vector2 escapeDownRight = new Vector2(1, 1);
-
             double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
             double distance = elapsed * Speed;
-            Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
+            Vector2 dir = getMovementVector(Direction) * (float)distance;
             dir.X += (float)xd;
             dir.Y += (float)yd;
+            Vector2 oldLocation = Location;
+            Location = Location + dir;
 
             if (Solid)
             {
-                Vector2 newLocation = Location + dir;
-                //Debug.WriteLine("Doing collisions for " + this.Id);
-                bool moveOk = true;
-                Vector2 escape = new Vector2();
                 foreach (GameObject o in objects)
                 {
                     if (o.Id == this.Id || !o.Solid)
@@ -88,46 +110,13 @@ namespace BarRoomBrawl
                     }
                     if (Intersects(o))
                     {
-                        //Debug.WriteLine("Collided with " + o.Id);
-                        moveOk = false;
-                        if (o.Location.X < Location.X)
-                        {
-                            if (o.Location.Y < Location.Y)
-                            {
-                                escape = escapeDownRight;
-                            }
-                            else
-                            {
-                                escape = escapeUpRight;
-                            }
-                        }
-                        else
-                        {
-                            if (o.Location.Y < Location.Y)
-                            {
-                                escape = escapeDownLeft;
-                            }
-                            else
-                            {
-                                escape = escapeUpLeft;
-                            }
-                        }
+                        Location = oldLocation;
                         break;
                     }
 
                 }
-                if (moveOk)
-                {
-                    Location = newLocation;
-                }
-                else
-                {
-                    Location = Location + escape;
-                }
-            }
-            else
-            {
-                Location = Location + dir;
+                    
+                
             }
         }
 

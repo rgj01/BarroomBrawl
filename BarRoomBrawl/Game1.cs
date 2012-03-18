@@ -24,6 +24,7 @@ namespace BarRoomBrawl
         Dictionary<String, Texture2D> TextDict;
         Random rand;
         int addplayertimer;
+        int enemycount;
 
 
         public Game1()
@@ -34,6 +35,8 @@ namespace BarRoomBrawl
             sinceLastSend = 0;
             TextDict = new Dictionary<String, Texture2D>();
             rand = new Random((int)DateTime.Now.Ticks);
+            addplayertimer = 0;
+            enemycount = 0;
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace BarRoomBrawl
 
             // TODO: use this.Content to load your game content here
 
-            String[] textures = { "Player", "Table", "FloorTile" };
+            String[] textures = { "Player", "Table", "FloorTile2" };
 
             foreach(String texture in textures)
             {
@@ -92,9 +95,17 @@ namespace BarRoomBrawl
 
             AddTables(50);
 
-            GameObject player2 = new Player("Player", new Vector2(600, 600), 0.0f, GameObject.Directions.N, 2);
-            m_state.GameObjects.Add(player2);
+            AddPlayer();
 
+        }
+
+        protected void AddPlayer()
+        {
+            int xpos = rand.Next(2400);
+            int ypos = rand.Next(2400);
+            GameObject player2 = new Player("Player", new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
+            enemycount++;
+            m_state.GameObjects.Add(player2);
         }
 
         protected void AddTables(int count)
@@ -133,59 +144,23 @@ namespace BarRoomBrawl
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+
             KeyboardState state = Keyboard.GetState();
-            Keys[] keys = Keyboard.GetState().GetPressedKeys();
-
-
-            m_player.Speed = 0.2f;
-
+            addplayertimer += gameTime.ElapsedGameTime.Milliseconds;
+            m_player.Direction =  (GameObject.Directions) ((int)(state.IsKeyDown(Keys.W) ? GameObject.Directions.N : 0)
+                                                         + (int)(state.IsKeyDown(Keys.S) ? GameObject.Directions.S : 0)
+                                                         + (int)(state.IsKeyDown(Keys.A) ? GameObject.Directions.W : 0)
+                                                         + (int)(state.IsKeyDown(Keys.D) ? GameObject.Directions.E : 0));
             if(state.IsKeyDown(Keys.Space))
             {
                 Punch p = m_player.ThrowPunch();
                 m_state.GameObjects.Add(p);
             }
 
-            if (state.IsKeyDown(Keys.D))
+            if (addplayertimer > 15000)
             {
-                if (state.IsKeyDown(Keys.W))
-                {
-                    m_player.Direction = GameObject.Directions.SE;
-                }
-                else if (state.IsKeyDown(Keys.S))
-                {
-                    m_player.Direction = GameObject.Directions.NE;
-                }
-                else
-                {
-                    m_player.Direction = GameObject.Directions.E;
-                }
-            }
-            else if (state.IsKeyDown(Keys.A))
-            {
-                if (state.IsKeyDown(Keys.W))
-                {
-                    m_player.Direction = GameObject.Directions.SW;
-                }
-                else if (state.IsKeyDown(Keys.S))
-                {
-                    m_player.Direction = GameObject.Directions.NW;
-                }
-                else
-                {
-                    m_player.Direction = GameObject.Directions.W;
-                }
-            }
-            else if (state.IsKeyDown(Keys.W))
-            {
-                m_player.Direction = GameObject.Directions.S;
-            }
-            else if (state.IsKeyDown(Keys.S))
-            {
-                m_player.Direction = GameObject.Directions.N;
-            }
-            else
-            {
-                m_player.Speed = 0.0f;
+                AddPlayer();
+                addplayertimer = 0;
             }
 
             if (Server != null)

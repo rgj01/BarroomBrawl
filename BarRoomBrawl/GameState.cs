@@ -33,7 +33,7 @@ namespace BarRoomBrawl
             }
             else if (o.Location.X + o.Bounds.X > 2560)
             {
-                o.Location = new Vector2(10000 - o.Bounds.X, o.Location.Y);
+                o.Location = new Vector2(2560 - o.Bounds.X, o.Location.Y);
             }
             if (o.Location.Y < 0)
             {
