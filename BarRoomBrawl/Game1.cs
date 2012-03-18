@@ -22,6 +22,8 @@ namespace BarRoomBrawl
         Client Client;
         int sinceLastSend;
         Dictionary<String, Texture2D> TextDict;
+        Random rand;
+        int addplayertimer;
 
 
         public Game1()
@@ -31,6 +33,7 @@ namespace BarRoomBrawl
             Content.RootDirectory = "Content";
             sinceLastSend = 0;
             TextDict = new Dictionary<String, Texture2D>();
+            rand = new Random((int)DateTime.Now.Ticks);
         }
 
         /// <summary>
@@ -86,13 +89,25 @@ namespace BarRoomBrawl
         {
             m_player = new Player("Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
             m_state.GameObjects.Add(m_player);
-            GameObject table = new GameObject("Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
-            table.Mobile = false;
-            table.Solid = true;
+
+            AddTables(50);
+
             GameObject player2 = new Player("Player", new Vector2(600, 600), 0.0f, GameObject.Directions.N, 2);
             m_state.GameObjects.Add(player2);
-            m_state.GameObjects.Add(table);
 
+        }
+
+        protected void AddTables(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int xpos = rand.Next(2400);
+                int ypos = rand.Next(2400);
+                GameObject table = new GameObject("Table", new Vector2(24, 42), new Vector2(xpos, ypos), 0.0f, GameObject.Directions.N, 50 + i);
+                table.Mobile = false;
+                table.Solid = true;
+                m_state.GameObjects.Add(table);
+            }
         }
 
         /// <summary>

@@ -31,17 +31,17 @@ namespace BarRoomBrawl
             {
                 o.Location = new Vector2(0, o.Location.Y);
             }
-            else if (o.Location.X > 10000)
+            else if (o.Location.X + o.Bounds.X > 2560)
             {
-                o.Location = new Vector2(10000, o.Location.Y);
+                o.Location = new Vector2(10000 - o.Bounds.X, o.Location.Y);
             }
             if (o.Location.Y < 0)
             {
                 o.Location = new Vector2(o.Location.X, 0);
             }
-            else if (o.Location.Y > 10000)
+            else if (o.Location.Y + o.Bounds.Y > 2560)
             {
-                o.Location = new Vector2(o.Location.X, 10000);
+                o.Location = new Vector2(o.Location.X, 2560 - o.Bounds.Y);
             }
         }
 
