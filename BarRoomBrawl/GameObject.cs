@@ -17,22 +17,24 @@ namespace BarRoomBrawl
         protected Vector2[] m_directionTransforms = { new Vector2(1, 0), new Vector2(1, -1), new Vector2(0, -1), new Vector2(-1, -1), new Vector2(-1, 0), new Vector2(-1, 1), new Vector2(0, 1), new Vector2(1, 1) };
         public int Id { get; set; }
         public Vector2 Location { get; set; }
+        public Vector2 Bounds { get; set; }
         public float Speed { get; set; }
         public Texture2D Texture { get; set; }
         public Directions Direction { get; set; }
-        public bool mobile {get; set;}
-        public bool solid { get; set; }
+        public bool Mobile {get; set;}
+        public bool Solid { get; set; }
 
-        public GameObject(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
+        public GameObject(Game game, string texture, Vector2 bounds, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
             m_game = game;
             m_textureName = texture;
+            Bounds = bounds;
             Location = startLoc;
             Speed = startSpeed;
             Direction = startDir;
             Id = id;
-            mobile = true;
-            solid = false;
+            Mobile = true;
+            Solid = false;
         }
 
         protected GameObject()
@@ -40,15 +42,15 @@ namespace BarRoomBrawl
 
         }
 
-        public bool Intersects(Vector2 position, GameObject other)
+        public bool Intersects(GameObject other)
         {
-            BoundingBox bb1 = new BoundingBox(new Vector3(position, 0.0f), new Vector3(Location.X + Texture.Width, Location.Y + Texture.Height, 0.0f));
-            Debug.WriteLine("Bounding box 1" + bb1);
+            BoundingBox bbThis = new BoundingBox(new Vector3(Location, 0.0f), new Vector3(Location.X + Bounds.X, Location.Y + Bounds.Y, 0.0f));
+            Debug.WriteLine("Bounding box for this object: " + bbThis);
 
-            BoundingBox bb2 = new BoundingBox(new Vector3(other.Location, 0.0f), new Vector3(other.Location.X + other.Texture.Width, other.Location.Y + other.Texture.Height, 0.0f));
-            Debug.WriteLine("Bounding box 2" + bb2);
+            BoundingBox bbOther = new BoundingBox(new Vector3(other.Location, 0.0f), new Vector3(other.Location.X + other.Bounds.X, other.Location.Y + other.Bounds.Y, 0.0f));
+            Debug.WriteLine("Bounding box for other object:" + bbOther);
 
-            return (bb1.Intersects(bb2));
+            return (bbThis.Intersects(bbOther));
         }
 
         public virtual void LoadContent() 
@@ -63,7 +65,7 @@ namespace BarRoomBrawl
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects)
         {
-            if (!mobile)
+            if (!Mobile)
                 return;
 
             Vector2 escapeUpLeft = new Vector2(-1, -1);
@@ -75,9 +77,9 @@ namespace BarRoomBrawl
             double distance = elapsed * Speed;
             Vector2 dir = m_directionTransforms[(int)Direction] * (float)distance;
 
-            if (solid)
+            if (Solid)
             {
-                Vector2 Location2 = Location + dir;
+                Vector2 newLocation = Location + dir;
                 Debug.WriteLine("Doing collisions for " + this.Id);
                 bool moveOk = true;
                 Vector2 escape = new Vector2();
@@ -87,7 +89,7 @@ namespace BarRoomBrawl
                     {
                         continue;
                     }
-                    if (Intersects(Location2, o))
+                    if (Intersects(o))
                     {
                         Debug.WriteLine("Collided with " + o.Id);
                         moveOk = false;
@@ -119,7 +121,7 @@ namespace BarRoomBrawl
                 }
                 if (moveOk)
                 {
-                    Location = Location2;
+                    Location = newLocation;
                 }
                 else
                 {

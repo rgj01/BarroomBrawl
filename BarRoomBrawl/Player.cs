@@ -16,15 +16,9 @@ namespace BarRoomBrawl
         public int ServerAssignedId { get; set; }
 
         public Player(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
-            : base(game, texture, startLoc, startSpeed, startDir, id)
+            : base(game, "Player", new Vector2(36, 72), startLoc, startSpeed, startDir, id)
         {
-            this.solid = true;
-        }
-
-        public override void LoadContent()
-        {
-            m_textureName = "Player";
-            base.LoadContent();
+            this.Solid = true;
         }
 
         public override void Draw(SpriteBatch batch)

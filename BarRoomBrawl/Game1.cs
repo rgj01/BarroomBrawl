@@ -78,8 +78,8 @@ namespace BarRoomBrawl
         protected void StartGame()
         {
             m_state.GameObjects.Add(m_player);
-            GameObject table = new GameObject(this, "Player", new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
-            table.mobile = false;
+            GameObject table = new GameObject(this, "Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
+            table.Mobile = false;
             m_state.GameObjects.Add(table);
 
         }
