@@ -24,8 +24,8 @@ namespace BarRoomBrawl
         Dictionary<String, Texture2D> TextDict;
         Random rand;
         int addplayertimer;
+        int stouttimer;
         int enemycount;
-
 
         public Game1()
         {
@@ -37,6 +37,7 @@ namespace BarRoomBrawl
             rand = new Random((int)DateTime.Now.Ticks);
             addplayertimer = 0;
             enemycount = 0;
+            stouttimer = 0;
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace BarRoomBrawl
 
             // TODO: use this.Content to load your game content here
 
-            String[] textures = { "Player", "Table", "FloorTile2" };
+            String[] textures = { "Player", "Table", "FloorTile2", "Whiskey", "Stout" };
 
             foreach(String texture in textures)
             {
@@ -103,7 +104,17 @@ namespace BarRoomBrawl
         {
             int xpos = rand.Next(2400);
             int ypos = rand.Next(2400);
-            GameObject player2 = new Player("Player", new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
+            Player player2 = new Player("Player", new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
+            player2.Drunkenness = 10000;
+            enemycount++;
+            m_state.GameObjects.Add(player2);
+        }
+
+        protected void AddStout()
+        {
+            int xpos = rand.Next(2400);
+            int ypos = rand.Next(2400);
+            GameObject player2 = new Stout(new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
             enemycount++;
             m_state.GameObjects.Add(player2);
         }
@@ -147,6 +158,7 @@ namespace BarRoomBrawl
 
             KeyboardState state = Keyboard.GetState();
             addplayertimer += gameTime.ElapsedGameTime.Milliseconds;
+            stouttimer += gameTime.ElapsedGameTime.Milliseconds;
             m_player.Direction =  (GameObject.Directions) ((int)(state.IsKeyDown(Keys.W) ? GameObject.Directions.N : 0)
                                                          + (int)(state.IsKeyDown(Keys.S) ? GameObject.Directions.S : 0)
                                                          + (int)(state.IsKeyDown(Keys.A) ? GameObject.Directions.W : 0)
@@ -159,10 +171,16 @@ namespace BarRoomBrawl
 
             if (addplayertimer > 15000)
             {
+                Console.WriteLine("So a guy walks into a bar...");
                 AddPlayer();
                 addplayertimer = 0;
             }
-
+            if (stouttimer > 1000)
+            {
+                Console.WriteLine("Drink's up!");
+                AddStout();
+                stouttimer = 0;
+            }
             if (Server != null)
             {
                 List<Player> updates = Server.GetUpdates();

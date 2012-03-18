@@ -13,7 +13,7 @@ namespace BarRoomBrawl
         int power;
         int _thrower;
          public Punch(string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id, int thrower, int drunkenness)
-            : base("Player", new Vector2(36, 72), startLoc, startSpeed, startDir, id)
+            : base("Whiskey", new Vector2(10, 6), startLoc, startSpeed, startDir, id)
         {
             clock = 50;
             this.Solid = false;

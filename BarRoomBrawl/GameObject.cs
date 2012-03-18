@@ -84,7 +84,7 @@ namespace BarRoomBrawl
         public virtual void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
         {
             Texture2D tex = tdict[m_textureName];
-            batch.Draw(tex, Location, Color.White);
+             batch.Draw(tex, Location, Color.White);
         }
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects, double xd = 0, double yd = 0)

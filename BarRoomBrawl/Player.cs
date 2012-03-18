@@ -41,7 +41,7 @@ namespace BarRoomBrawl
                 invtimer = 0;
             }
             drunkennessClock += gameTime.ElapsedGameTime.Milliseconds;
-            Drunkenness += gameTime.ElapsedGameTime.Milliseconds / 10;
+            //Drunkenness += gameTime.ElapsedGameTime.Milliseconds / 10;
             double drukennessMult = (double)Drunkenness / 1000;
             double dclock = (double)drunkennessClock / 1000;
             double xmod = drukennessMult * Math.Sin(dclock);
