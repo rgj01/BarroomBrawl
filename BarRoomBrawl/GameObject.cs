@@ -82,7 +82,7 @@ namespace BarRoomBrawl
                 Vector2 escape = new Vector2();
                 foreach (GameObject o in objects)
                 {
-                    if (o.Id == this.Id)
+                    if (o.Id == this.Id || !o.Solid)
                     {
                         continue;
                     }
@@ -131,6 +131,15 @@ namespace BarRoomBrawl
             }
         }
 
+        public virtual bool IsDead()
+        {
+            return false;
+        }
+
+        public virtual void TakeHit(int damage)
+        {
+
+        }
         
     }
 }

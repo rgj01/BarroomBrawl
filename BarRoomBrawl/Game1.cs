@@ -88,6 +88,9 @@ namespace BarRoomBrawl
             m_state.GameObjects.Add(m_player);
             GameObject table = new GameObject("Table", new Vector2(24,42), new Vector2(300, 300), 0.0f, GameObject.Directions.N, 1);
             table.Mobile = false;
+            table.Solid = true;
+            GameObject player2 = new Player("Player", new Vector2(600, 600), 0.0f, GameObject.Directions.N, 2);
+            m_state.GameObjects.Add(player2);
             m_state.GameObjects.Add(table);
 
         }
@@ -120,6 +123,12 @@ namespace BarRoomBrawl
 
 
             m_player.Speed = 0.2f;
+
+            if(state.IsKeyDown(Keys.Space))
+            {
+                Punch p = m_player.ThrowPunch();
+                m_state.GameObjects.Add(p);
+            }
 
             if (state.IsKeyDown(Keys.D))
             {
@@ -176,27 +185,27 @@ namespace BarRoomBrawl
 
             m_camera.Update(m_player.Location);
             m_state.Update(gameTime);
-            sinceLastSend += gameTime.ElapsedGameTime.Milliseconds;
-            if (sinceLastSend > 50)
-            {
-                if (Server != null)
-                {
-                    Server.BroadcastState(m_state);
-                }
-                else
-                {
-                    var players = from player in m_state.GameObjects where player.Id == m_player.Id select player;
-                    try
-                    {
-                        Client.SendUpdate((Player)players.First());
-                    }
-                    catch (Exception e)
-                    {
-                        this.Exit();
-                    }
-                }
-                sinceLastSend = 0;
-            }
+            //sinceLastSend += gameTime.ElapsedGameTime.Milliseconds;
+            //if (sinceLastSend > 50)
+            //{
+            //    if (Server != null)
+            //    {
+            //        Server.BroadcastState(m_state);
+            //    }
+            //    else
+            //    {
+            //        var players = from player in m_state.GameObjects where player.Id == m_player.Id select player;
+            //        try
+            //        {
+            //            Client.SendUpdate((Player)players.First());
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            this.Exit();
+            //        }
+            //    }
+            //    sinceLastSend = 0;
+            //}
             base.Update(gameTime);
         }
 
