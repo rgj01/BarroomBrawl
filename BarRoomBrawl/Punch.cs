@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace BarRoomBrawl
 {
@@ -12,13 +13,12 @@ namespace BarRoomBrawl
         int clock;
         int power;
         int _thrower;
-         public Punch(string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id, int thrower, int drunkenness)
-            : base("Whiskey", new Vector2(10, 6), startLoc, startSpeed, startDir, id)
+         public Punch(string texture, Vector2 startLoc, Vector2 bounds, float startSpeed, Directions startDir, int id, int thrower, int drunkenness)
+            : base("Whiskey", bounds, startLoc, startSpeed, startDir, id)
         {
             clock = 50;
             this.Solid = false;
             _thrower = thrower;
-            Bounds = new Vector2(50, 50);
             power = drunkenness / 500;
         }
 
@@ -27,12 +27,16 @@ namespace BarRoomBrawl
             clock -= gameTime.ElapsedGameTime.Milliseconds;
             foreach (GameObject o in objects)
             {
-                if (Intersects(o) && _thrower != o.Id)
+                if (o is Player && _thrower != o.Id && Intersects(o))
                 {
                     o.TakeHit(50 + power);
                 }
             }
             base.Update(gameTime, objects, xd, yd);
+        }
+
+        public override void Draw(Dictionary<string, Microsoft.Xna.Framework.Graphics.Texture2D> tdict, Microsoft.Xna.Framework.Graphics.SpriteBatch batch)
+        {
         }
 
         public override bool IsDead()

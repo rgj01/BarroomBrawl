@@ -17,23 +17,23 @@ namespace BarRoomBrawl
         // S -1 + W -4 = SW -5
         // N 1 + E 4 = NE 5
         // N 1 + W -4 = NW -3
-        public enum Directions {  SW = -5, W = -4, NW = -3, N = -1, None = 0, S = 1, SE = 3, E = 4,  NE = 5  }
+        public enum Directions {  SW = -5, W = -4, NW = -3, S = -1, None = 0, N = 1, SE = 3, E = 4,  NE = 5  }
 
-        private Vector2 getMovementVector(Directions dir)
+        protected Vector2 getMovementVector(Directions dir)
         {
             Vector2[] directionTransforms = 
             { 
-                new Vector2(-0.7071067811865f, -0.7071067811865f), // SW
+                new Vector2(-0.7071067811865f, 0.7071067811865f), // SW
                 new Vector2(-1, 0), // W
-                new Vector2(-0.7071067811865f, 0.7071067811865f), // NW
+                new Vector2(-0.7071067811865f,-0.7071067811865f), // NW
                 Vector2.Zero,
-                new Vector2(0, -1), // S
+                new Vector2(0, 1), // S
                 Vector2.Zero, // None
-                new Vector2(0, 1), // N
+                new Vector2(0, -1), // N
                 Vector2.Zero,
-                new Vector2(0.7071067811865f, -0.7071067811865f), // SE
+                new Vector2(0.7071067811865f, 0.7071067811865f), // SE
                 new Vector2(1, 0), // E
-                new Vector2(0.7071067811865f, 0.7071067811865f)  // NE
+                new Vector2(0.7071067811865f, -0.7071067811865f)  // NE
             };
 
             int offset = 5 + (int)dir;

@@ -51,46 +51,54 @@ namespace BarRoomBrawl
 
         public Punch ThrowPunch()
         {
-            int punchdist = 50;
-            Vector2 ploc = Location;
-            if (Direction == Directions.E)
+            Vector2 punchLoc = Location;
+
+            Vector2 bounds = new Vector2(5, 5);
+            
+            if ( Directions.S == Direction
+              || Directions.N == Direction)
             {
-                ploc.X += punchdist + Bounds.X;
+                bounds.X = Bounds.X;
             }
-            else if (Direction == Directions.NE)
+            if (Directions.E == Direction
+              || Directions.W == Direction)
             {
-                ploc.X += punchdist + Bounds.X;
-                ploc.Y -= punchdist;
+                bounds.Y = Bounds.Y;
             }
-            else if (Direction == Directions.SE)
+            
+            Punch punch = new Punch("Player", punchLoc, bounds, 0.0f, Direction, Id + 200, Id, Drunkenness);
+
+            //finesse the location
+            if ( Directions.S == Direction
+              || Directions.SE == Direction
+              || Directions.SW == Direction)
             {
-                ploc.X += punchdist + Bounds.X;
-                ploc.Y += punchdist + Bounds.Y;
+                punchLoc.Y += (Bounds.Y + punch.Bounds.Y + 5);
             }
-            if (Direction == Directions.W)
+            else if (Directions.N == Direction
+              || Directions.NE == Direction
+              || Directions.NW == Direction)
             {
-                ploc.X -= punchdist;
-            }
-            else if (Direction == Directions.NW)
-            {
-                ploc.X -= punchdist;
-                ploc.Y -= punchdist;
-            }
-            else if (Direction == Directions.SW)
-            {
-                ploc.X = punchdist;
-                ploc.Y += punchdist + Bounds.Y;
-            }
-            else if (Direction == Directions.N)
-            {
-                ploc.Y -= punchdist;
-            }
-            else if (Direction == Directions.S)
-            {
-                ploc.Y += punchdist;
+                punchLoc.Y -= (2 * punch.Bounds.Y + 5);
             }
 
-            Punch punch = new Punch("Player", ploc, 0.0f, Direction, Id + 200, Id, Drunkenness);
+            if (Directions.W == Direction
+              || Directions.SW == Direction
+              || Directions.NW == Direction)
+            {
+                punchLoc.X -= (2* punch.Bounds.X + 5);
+            }
+            else if (Directions.E == Direction
+              || Directions.SE == Direction
+              || Directions.NE == Direction)
+            {
+                punchLoc.X += (Bounds.X + punch.Bounds.X + 5);
+            }
+
+            
+
+            punch.Location = punchLoc;
+            
             return punch;
         }
 
