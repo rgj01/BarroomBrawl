@@ -18,7 +18,7 @@ namespace BarRoomBrawl
         public Player(Game game, string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
             : base(game, texture, startLoc, startSpeed, startDir, id)
         {
-
+            this.solid = true;
         }
 
         public override void LoadContent()
