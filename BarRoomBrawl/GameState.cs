@@ -10,6 +10,7 @@ namespace BarRoomBrawl
     class GameState
     {
         private List<GameObject> m_gameObjects;
+            List<GameObject> next;
         public List<GameObject> GameObjects 
         {
             get
@@ -21,6 +22,7 @@ namespace BarRoomBrawl
         public GameState()
         {
             m_gameObjects = new List<GameObject>();
+            next = new List<GameObject>();
         }
 
         private void Contain(GameObject o)
@@ -45,11 +47,19 @@ namespace BarRoomBrawl
 
         public void Update(GameTime gameTime)
         {
+            next.Clear();
             foreach (GameObject o in m_gameObjects)
             {
                 o.Update(gameTime, m_gameObjects);
                 Contain(o);
+                if (!o.IsDead())
+                {
+                    next.Add(o);
+                }
             }
+            var temp = next;
+            next = m_gameObjects;
+            m_gameObjects = temp;
             m_gameObjects = m_gameObjects.OrderBy(x => x.Location.Y).ToList();
         }
 

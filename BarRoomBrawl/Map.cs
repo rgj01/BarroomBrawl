@@ -23,11 +23,11 @@ namespace BarRoomBrawl
             m_floorTexture = m_game.Content.Load<Texture2D>("FloorTile2");
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch spriteBatch)
         {
-
-            Rectangle rect = new Rectangle(0, 0, 10 * m_floorTexture.Width, 10 * m_floorTexture.Height);
-            spriteBatch.Draw(m_floorTexture, Vector2.Zero, rect, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            Texture2D floortext = tdict["FloorTile"];
+            Rectangle rect = new Rectangle(0, 0, 10 * floortext.Width, 10 * floortext.Height);
+            spriteBatch.Draw(floortext, Vector2.Zero, rect, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
                 
         }
 

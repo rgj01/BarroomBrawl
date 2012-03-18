@@ -8,9 +8,9 @@ using System.Diagnostics;
 
 namespace BarRoomBrawl
 {
+    [Serializable()]
     public class GameObject
     {
-        protected Game m_game;
         protected string m_textureName;
 
         // S -1 + E 4 = SE 3
@@ -44,14 +44,13 @@ namespace BarRoomBrawl
         public Vector2 Location { get; set; }
         public Vector2 Bounds { get; set; }
         public float Speed { get; set; }
-        public Texture2D Texture { get; set; }
+
         public Directions Direction { get; set; }
         public bool Mobile {get; set;}
         public bool Solid { get; set; }
 
-        public GameObject(Game game, string texture, Vector2 bounds, Vector2 startLoc, float startSpeed, Directions startDir, int id)
+        public GameObject(string texture, Vector2 bounds, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
-            m_game = game;
             m_textureName = texture;
             Bounds = bounds;
             Location = startLoc;
@@ -82,17 +81,13 @@ namespace BarRoomBrawl
             return true;
         }
 
-        public virtual void LoadContent() 
+        public virtual void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
         {
-            Texture = m_game.Content.Load<Texture2D>(m_textureName);
+            Texture2D tex = tdict[m_textureName];
+            batch.Draw(tex, Location, Color.White);
         }
 
-        public virtual void Draw(SpriteBatch batch)
-        {
-            batch.Draw(Texture, Location, Color.White);
-        }
-
-        public virtual void Update(GameTime gameTime, List<GameObject> objects)
+        public virtual void Update(GameTime gameTime, List<GameObject> objects, double xd = 0, double yd = 0)
         {
             if (!Mobile)
                 return;
@@ -105,41 +100,15 @@ namespace BarRoomBrawl
 
             if (Solid)
             {
-                Debug.WriteLine("Doing collisions for " + this.Id);
-
                 foreach (GameObject o in objects)
                 {
-                    if (o.Id == this.Id)
+                    if (o.Id == this.Id || !o.Solid)
                     {
                         continue;
                     }
                     if (Intersects(o))
                     {
-                        Debug.WriteLine("Collided with " + o.Id);
-
                         Location = oldLocation;
-                        //if (o.Location.X < Location.X)
-                        //{
-                        //    if (o.Location.Y < Location.Y)
-                        //    {
-                        //        escape = escapeDownRight;
-                        //    }
-                        //    else
-                        //    {
-                        //        escape = escapeUpRight;
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    if (o.Location.Y < Location.Y)
-                        //    {
-                        //        escape = escapeDownLeft;
-                        //    }
-                        //    else
-                        //    {
-                        //        escape = escapeUpLeft;
-                        //    }
-                        //}
                         break;
                     }
 
@@ -149,6 +118,15 @@ namespace BarRoomBrawl
             }
         }
 
+        public virtual bool IsDead()
+        {
+            return false;
+        }
+
+        public virtual void TakeHit(int damage)
+        {
+
+        }
         
     }
 }

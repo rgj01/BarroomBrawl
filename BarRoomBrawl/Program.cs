@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace BarRoomBrawl
 {
@@ -12,6 +13,15 @@ namespace BarRoomBrawl
         {
             using (Game1 game = new Game1())
             {
+                Debug.WriteLine("args: {0}", args.Length);
+                if (args.Length == 1)
+                {
+                    game.IsClient(true);
+                }
+                else
+                {
+                    game.IsClient(false);
+                }
                 game.Run();
             }
         }
