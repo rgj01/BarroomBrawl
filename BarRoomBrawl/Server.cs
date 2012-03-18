@@ -16,12 +16,13 @@ namespace BarRoomBrawl
         private Socket Listener;
         private List<Socket> Sockets;
         private bool Started;
-        private List<GameObject> Updates;
+        private List<Player> Updates;
         private String UpdateLock;
 
         public Server()
         {
-            Updates = new List<GameObject>();
+            UpdateLock = "I'm just a lock";
+            Updates = new List<Player>();
             Started = false;
             Sockets = new List<Socket>();
             Listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -30,56 +31,67 @@ namespace BarRoomBrawl
 
         private void DataReceived(object sender, SocketAsyncEventArgs args)
         {
-            UpdateLock = "I'm just a lock";
+            
             String Input = System.Text.Encoding.Default.GetString(args.Buffer);
             Debug.WriteLine("Received: {0}", Input);
             BinaryFormatter des = new BinaryFormatter();
             MemoryStream ms = new MemoryStream(args.Buffer);
-            object Object = des.Deserialize(ms);
 
-            lock (UpdateLock)
-            {
-                Updates.Add((GameObject)Object);
-            }
+            GameMessage message = (GameMessage) des.Deserialize(ms);
 
             Socket s = (Socket)args.UserToken;
             args.SetBuffer(0, 2056);
             s.ReceiveAsync(args);
         }
 
+        private void processMessage(GameMessage gs)
+        {
+            if(gs.messageType.CompareTo("PlayerUpdate") == 0)
+            {
+                lock (UpdateLock)
+                {
+                    Updates.Add(gs.PlayerState);
+                }
+            }
+        }
+
         private void ConnectionReceived(object sender, SocketAsyncEventArgs args)
         {
+            Socket s = args.AcceptSocket;
             Debug.WriteLine("Connection received");
             lock (Sockets)
             {
-                byte[] buffer = new byte[2056];
-                Socket s = args.AcceptSocket;
-                SocketAsyncEventArgs receive_args = new SocketAsyncEventArgs();
-                receive_args.Completed += DataReceived;
-                receive_args.SetBuffer(buffer, 0, 2056);
-                receive_args.UserToken = s;
-                s.ReceiveAsync(receive_args);
+
                 Sockets.Add(s);
                 Debug.WriteLine("Got {0}", s);
                 
             }
+            byte[] buffer = new byte[2056];
+
+            SocketAsyncEventArgs receive_args = new SocketAsyncEventArgs();
+            receive_args.Completed += DataReceived;
+            receive_args.SetBuffer(buffer, 0, 2056);
+            receive_args.UserToken = s;
+            s.ReceiveAsync(receive_args);
             StartAccept(args);
         }
 
-        public List<GameObject> GetUpdates()
+        public List<Player> GetUpdates()
         {
 
             lock (UpdateLock)
             {
-                List<GameObject> Output = Updates;
-                Updates = new List<GameObject>();
+                List<Player> Output = Updates;
+                Updates = new List<Player>();
                 return Output;
             }
         }
 
         public void BroadcastState(GameState state)
         {
-
+            GameMessage msg = new GameMessage();
+            msg.messageType = "ServerUpdate";
+            msg.gs = state;
             //Create game state
             lock (Sockets)
             {
@@ -87,7 +99,7 @@ namespace BarRoomBrawl
                 {
                     NetworkStream stream = new NetworkStream(s);
                     BinaryFormatter format = new BinaryFormatter();
-                    format.Serialize(stream, state);
+                    format.Serialize(stream, msg);
                 }
             }
         }

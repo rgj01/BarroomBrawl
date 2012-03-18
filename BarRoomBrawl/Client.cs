@@ -44,17 +44,36 @@ namespace BarRoomBrawl
         {
             MemoryStream ms = new MemoryStream(args.Buffer);
             BinaryFormatter decoder = new BinaryFormatter();
-            GameState gs = (GameState)decoder.Deserialize(ms);
-            lock (Latest)
+            GameMessage gm = (GameMessage)decoder.Deserialize(ms);
+            HandleMessage(gm);
+
+        }
+
+        private void HandleMessage(GameMessage gm)
+        {
+            if (gm.messageType.CompareTo("ServerUpdate") == 0)
             {
-                Latest = gs;
+                lock (Latest)
+                {
+                    Latest = gm.gs;
+                }
             }
+        }
+
+        public void SendUpdate(Player player)
+        {
+            GameMessage gm = new GameMessage();
+            gm.messageType = "PlayerUpdate";
+            BinaryFormatter serial = new BinaryFormatter();
+            NetworkStream n = new NetworkStream(Socket);
+            serial.Serialize(n, gm);
+
         }
 
         /*
          * Return null if there isn't a new state since the last time this was called
          */
-        private GameState getLatest()
+        public GameState getLatest()
         {
             lock (Latest)
             {

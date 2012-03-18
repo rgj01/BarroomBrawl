@@ -19,7 +19,8 @@ namespace BarRoomBrawl
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Server Server;
-
+        Client Client;
+        int PlayerId;
 
         public Game1()
         {
@@ -45,6 +46,7 @@ namespace BarRoomBrawl
             // TODO ask if the player wants to start a server or join one
             Server = new Server();
             Server.Start(4444);
+            
 
             StartGame();
             base.Initialize();
@@ -149,9 +151,23 @@ namespace BarRoomBrawl
                 m_player.Speed = 0.0f;
             }
 
+            if (Server != null)
+            {
+                List<Player> updates = Server.GetUpdates();
+                foreach (Player p in updates)
+                {
+                    m_state.ReplacePlayer(p);
+                }
+            }
+            else
+            {
+                var players = from player in m_state.GameObjects where player.Id == PlayerId select player;
+                Client.SendUpdate((Player)players.First());
+            }
+
             m_camera.Update(m_player.Location);
             m_state.Update(gameTime);
-            
+
             base.Update(gameTime);
         }
 

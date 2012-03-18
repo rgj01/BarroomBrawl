@@ -52,5 +52,23 @@ namespace BarRoomBrawl
             }
             m_gameObjects = m_gameObjects.OrderBy(x => x.Location.Y).ToList();
         }
+
+        internal void ReplacePlayer(Player p)
+        {
+            GameObject found = null;
+            foreach (GameObject o in m_gameObjects)
+            {
+                if (o.Id == p.Id)
+                {
+                    found = o;
+                    break;
+                }
+            }
+            if (found != null)
+            {
+                m_gameObjects.Remove(found);
+            }
+            m_gameObjects.Add(p);
+        }
     }
 }
