@@ -32,12 +32,6 @@ namespace BarRoomBrawl
 
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            sinceLastSend = 0;
-            TextDict = new Dictionary<String, Texture2D>();
-            rand = new Random((int)DateTime.Now.Ticks);
-            addplayertimer = 0;
-            enemycount = 0;
-            stouttimer = 0;
         }
 
         /// <summary>
@@ -50,6 +44,12 @@ namespace BarRoomBrawl
         {
             // TODO: Add your initialization logic here
 
+            sinceLastSend = 0;
+            TextDict = new Dictionary<String, Texture2D>();
+            rand = new Random((int)DateTime.Now.Ticks);
+            addplayertimer = 0;
+            enemycount = 0;
+            stouttimer = 0;
             m_map = new Map();
             m_camera = new Camera(Vector2.Zero, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2));
             m_state = new GameState();
@@ -80,7 +80,7 @@ namespace BarRoomBrawl
 
             // TODO: use this.Content to load your game content here
 
-            String[] textures = { "Player", "Table", "FloorTile2", "Whiskey", "Stout" };
+            String[] textures = { "Player", "Table", "FloorTile2", "Whiskey", "Stout", "nottim" };
 
             foreach(String texture in textures)
             {
@@ -114,9 +114,8 @@ namespace BarRoomBrawl
         {
             int xpos = rand.Next(2400);
             int ypos = rand.Next(2400);
-            GameObject player2 = new Stout(new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
-            enemycount++;
-            m_state.GameObjects.Add(player2);
+            GameObject stout = new Stout(new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
+            m_state.GameObjects.Add(stout);
         }
 
         protected void AddTables(int count)
@@ -125,7 +124,7 @@ namespace BarRoomBrawl
             {
                 int xpos = rand.Next(2400);
                 int ypos = rand.Next(2400);
-                GameObject table = new GameObject("Table", new Vector2(24, 42), new Vector2(xpos, ypos), 0.0f, GameObject.Directions.N, 50 + i);
+                GameObject table = new GameObject("Table", new Vector2(36, 49), new Vector2(xpos, ypos), 0.0f, GameObject.Directions.N, 50 + i);
                 table.Mobile = false;
                 table.Solid = true;
                 m_state.GameObjects.Add(table);

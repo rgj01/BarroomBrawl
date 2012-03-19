@@ -10,10 +10,9 @@ namespace BarRoomBrawl
     {
         bool pickedup;
         public Stout(Vector2 startLoc, float startSpeed, Directions startDir, int id)
-            : base("Stout", new Vector2(10, 14), startLoc, startSpeed, startDir, id)
+            : base("Stout", new Vector2(10, 16), startLoc, startSpeed, startDir, id)
         {
             pickedup = false;
-            Bounds = new Vector2(16, 16);
         }
 
 
@@ -21,7 +20,7 @@ namespace BarRoomBrawl
         {
             foreach(GameObject o in objects)
             {
-                if (Intersects(o) && o is Player)
+                if (o is Player && Intersects(o))
                 {
                     Player p = (Player)o;
                     p.Drunkenness += 200;

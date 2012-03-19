@@ -15,42 +15,90 @@ namespace BarRoomBrawl
         public int Drunkenness { get; set; }
         public int CarriedItemId { get; set; }
         public int ServerAssignedId { get; set; }
-        int drunkennessClock;
-        int invtimer;
+        protected override int CurrentAnimationId { get { return (int)currentAnimation; } }
+
+        int invulnTimer;
+
+        enum Animation { standing = 0, running, punching };
+        Animation currentAnimation;
+        
+        const int soberEveryMilliseconds = 3000;
+        const int soberUpEverySecond = 10;
+        int soberTimer = soberEveryMilliseconds;
+
 
         public Player(string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
-            : base("Player", new Vector2(36, 72), startLoc, startSpeed, startDir, id)
+            : base("nottim", new Vector2(50, 69), startLoc, startSpeed, startDir, id)
         {
             Health = 500;
-            drunkennessClock = 0;
             this.Solid = true;
             Speed = 0.2f;
-            invtimer = 0;
+            invulnTimer = 0;
+            animationFPS = new int[] { 1, 2, 4 };
+            frameCounts = new int[] { 1, 8, 6 };
+            frameBounds = new Vector2[] { new Vector2(51, 70), new Vector2(51, 70), new Vector2(68, 61) };
+            frameVerticalOffset = new int[] { 0, 0, 71 };
+            Animated = true;
+            currentAnimation = Animation.standing;
         }
 
-        public override void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
+        public override void Draw(Dictionary<string, Texture2D> tdict, SpriteBatch batch)
         {
-            batch.Draw(tdict[m_textureName], Location, new Rectangle(0, 0, 36, 72), Color.White);
+            if (Animation.punching == currentAnimation && currentFrame + 1 == FrameCount)
+            {
+                currentAnimation = Animation.standing;
+                currentFrame = 0;
+            }
+            base.Draw(tdict, batch);
         }
 
         public override void Update(GameTime gameTime, List<GameObject> objects, double xd = 0, double yd = 0)
         {
-            invtimer -= gameTime.ElapsedGameTime.Milliseconds;
-            if (invtimer < 0)
+            // invulnerable after being hit
+            invulnTimer -= gameTime.ElapsedGameTime.Milliseconds;
+            if (invulnTimer < 0)
             {
-                invtimer = 0;
+                invulnTimer = 0;
             }
-            drunkennessClock += gameTime.ElapsedGameTime.Milliseconds;
-            //Drunkenness += gameTime.ElapsedGameTime.Milliseconds / 10;
-            double drukennessMult = (double)Drunkenness / 1000;
-            double dclock = (double)drunkennessClock / 1000;
-            double xmod = drukennessMult * Math.Sin(dclock);
-            double ymod = drukennessMult * Math.Sin(dclock + .8);
+            
+
+            // get sober as time goes on
+            soberTimer -= gameTime.ElapsedGameTime.Milliseconds;
+            if (soberTimer < 0)
+            {
+                soberTimer = soberEveryMilliseconds;
+                Drunkenness = Drunkenness - soberUpEverySecond < 0 ? 0 : Drunkenness - soberUpEverySecond;
+            }
+            double drunkennessMult = (double)Drunkenness / 100;
+            drunkennessMult = drunkennessMult > 2 ? 2 : drunkennessMult;
+            double dclock = (double)gameTime.TotalGameTime.Seconds;
+
+            double xmod = drunkennessMult * Math.Sin(dclock);
+            double ymod = drunkennessMult * Math.Sin(dclock + .8);
+
+            if (Direction != Directions.None || xmod > 0 || ymod > 0)
+            {
+                if (currentAnimation == Animation.standing)
+                {
+                    currentAnimation = Animation.running;
+                }
+            }
+            else if (currentAnimation != Animation.punching)
+            {
+                currentAnimation = Animation.standing;
+            }
+
             base.Update(gameTime, objects, xmod, ymod);
         }
 
         public Punch ThrowPunch()
         {
+            if (Animation.punching != currentAnimation)
+            {
+                currentAnimation = Animation.punching;
+                currentFrame = 0;
+            }
+
             Vector2 punchLoc = Location;
 
             Vector2 bounds = new Vector2(5, 5);
@@ -104,9 +152,9 @@ namespace BarRoomBrawl
 
         public override void TakeHit(int damage)
         {
-            if (invtimer <= 0)
+            if (invulnTimer <= 0)
             {
-                invtimer = 300;
+                invulnTimer = 300;
                 Health -= damage;
             }
             Console.WriteLine("Took hit, health:{0}", Health);

@@ -40,25 +40,42 @@ namespace BarRoomBrawl
             return directionTransforms[offset];
         }
 
+        protected int[] animationFPS;
+        protected int[] frameCounts;
+        protected Vector2[] frameBounds;
+        protected int[] frameVerticalOffset;
+        protected int currentFrame;
+        float totalElapsedFrameTime;
+        const int targetFPS = 30;
+
         public int Id { get; set; }
         public Vector2 Location { get; set; }
-        public Vector2 Bounds { get; set; }
+        public Vector2 Bounds { get { return frameBounds[CurrentAnimationId]; } }
         public float Speed { get; set; }
+        protected virtual int CurrentAnimationId { get; set; }
+        protected int FrameVerticalOffset { get { return frameVerticalOffset[CurrentAnimationId]; } }
+        protected float TimePerFrame { get { return (float)animationFPS[CurrentAnimationId] / targetFPS; } }
+        protected int FrameCount { get { return frameCounts[CurrentAnimationId]; } }
 
         public Directions Direction { get; set; }
         public bool Mobile {get; set;}
         public bool Solid { get; set; }
+        public bool Animated { get; set; } 
 
         public GameObject(string texture, Vector2 bounds, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
             m_textureName = texture;
-            Bounds = bounds;
+            frameBounds = new Vector2[] { bounds };
+            frameVerticalOffset = new int[] { 0 };
+            animationFPS = new int[] { 2 };
+            CurrentAnimationId = 0;
             Location = startLoc;
             Speed = startSpeed;
             Direction = startDir;
             Id = id;
             Mobile = true;
             Solid = false;
+            Animated = false;
         }
 
         protected GameObject()
@@ -80,11 +97,22 @@ namespace BarRoomBrawl
 
             return true;
         }
+        protected void UpdateFrame(float elapsed)
+        {
+            totalElapsedFrameTime += elapsed;
+            if (totalElapsedFrameTime >= TimePerFrame)
+            {
+                currentFrame++;
+                // Keep the Frame between 0 and the total frames, minus one.
+                currentFrame = currentFrame % FrameCount;
+                totalElapsedFrameTime -= TimePerFrame;
+            }
+        }
 
         public virtual void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
         {
-            Texture2D tex = tdict[m_textureName];
-             batch.Draw(tex, Location, Color.White);
+            Rectangle sourceRect = new Rectangle(currentFrame * (int)Bounds.X, FrameVerticalOffset, (int)Bounds.X, (int)Bounds.Y);
+            batch.Draw(tdict[m_textureName], Location, sourceRect, Color.White);
         }
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects, double xd = 0, double yd = 0)
@@ -92,11 +120,19 @@ namespace BarRoomBrawl
             if (!Mobile)
                 return;
 
+            if (Animated)
+            {
+                // frame animation needs to be rotated
+                UpdateFrame((float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+
             double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
             double distance = elapsed * Speed;
+            
             Vector2 dir = getMovementVector(Direction) * (float)distance;
             dir.X += (float)xd;
             dir.Y += (float)yd;
+
             Vector2 oldLocation = Location;
             Location = Location + dir;
 
