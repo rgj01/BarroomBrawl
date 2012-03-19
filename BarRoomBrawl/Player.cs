@@ -19,36 +19,38 @@ namespace BarRoomBrawl
 
         int invulnTimer;
 
-        enum Animation { standing = 0, running, punching };
+        protected enum Animation { standing = 0, running, punching, drunkrunning, drunkstanding, drunkpunching };
         Animation currentAnimation;
+        Animation lastAnimation;
         
-        const int soberEveryMilliseconds = 3000;
-        const int soberUpEverySecond = 10;
+        const int soberEveryMilliseconds = 1000;
+        const int soberUpEverySecond = 25;
         int soberTimer = soberEveryMilliseconds;
 
-
         public Player(string texture, Vector2 startLoc, float startSpeed, Directions startDir, int id)
-            : base("nottim", new Vector2(50, 69), startLoc, startSpeed, startDir, id)
+            : base(texture, new Vector2(50, 69), startLoc, startSpeed, startDir, id)
         {
             Health = 500;
+            Drunkenness = 0;
             this.Solid = true;
             Speed = 0.2f;
             invulnTimer = 0;
-            animationFPS = new int[] { 1, 2, 4 };
-            frameCounts = new int[] { 1, 8, 6 };
-            frameBounds = new Vector2[] { new Vector2(51, 70), new Vector2(51, 70), new Vector2(68, 61) };
-            frameVerticalOffset = new int[] { 0, 0, 71 };
+            frameCounts = new int[] { 6, 8, 6, 8, 6, 6 };
+            frameBounds = new Vector2[] { new Vector2(51, 70), new Vector2(51, 70), new Vector2(68, 70), new Vector2(51, 70), new Vector2(51, 70), new Vector2(68, 70) };
+            frameVerticalOffset = new int[] { 210, 0, 70, 140, 280, 350 };
             Animated = true;
             currentAnimation = Animation.standing;
+            lastAnimation = Animation.standing;
         }
 
         public override void Draw(Dictionary<string, Texture2D> tdict, SpriteBatch batch)
         {
-            if (Animation.punching == currentAnimation && currentFrame + 1 == FrameCount)
+            if ((Animation.punching == currentAnimation || Animation.drunkpunching == currentAnimation) &&  currentFrame + 1 == FrameCount)
             {
-                currentAnimation = Animation.standing;
+                currentAnimation = lastAnimation;
                 currentFrame = 0;
             }
+
             base.Draw(tdict, batch);
         }
 
@@ -60,7 +62,6 @@ namespace BarRoomBrawl
             {
                 invulnTimer = 0;
             }
-            
 
             // get sober as time goes on
             soberTimer -= gameTime.ElapsedGameTime.Milliseconds;
@@ -76,16 +77,18 @@ namespace BarRoomBrawl
             double xmod = drunkennessMult * Math.Sin(dclock);
             double ymod = drunkennessMult * Math.Sin(dclock + .8);
 
-            if (Direction != Directions.None || xmod > 0 || ymod > 0)
+
+            if (currentAnimation != Animation.punching && currentAnimation != Animation.drunkpunching)
             {
-                if (currentAnimation == Animation.standing)
+                if (Direction != Directions.None)
                 {
-                    currentAnimation = Animation.running;
+                    currentAnimation = Drunkenness > 500 ? Animation.drunkrunning : Animation.running;
+
                 }
-            }
-            else if (currentAnimation != Animation.punching)
-            {
-                currentAnimation = Animation.standing;
+                else
+                {
+                    currentAnimation = Drunkenness > 500 ? Animation.drunkstanding : Animation.standing;
+                }
             }
 
             base.Update(gameTime, objects, xmod, ymod);
@@ -93,23 +96,20 @@ namespace BarRoomBrawl
 
         public Punch ThrowPunch()
         {
-            if (Animation.punching != currentAnimation)
+            if (Animation.punching != currentAnimation && Animation.drunkpunching != currentAnimation)
             {
-                currentAnimation = Animation.punching;
+                lastAnimation = currentAnimation;
+                currentAnimation = Drunkenness > 500 ? Animation.drunkpunching : Animation.punching;
                 currentFrame = 0;
             }
+
 
             Vector2 punchLoc = Location;
 
             Vector2 bounds = new Vector2(5, 5);
             
-            if ( Directions.S == Direction
-              || Directions.N == Direction)
-            {
-                bounds.X = Bounds.X;
-            }
-            if (Directions.E == Direction
-              || Directions.W == Direction)
+            if (Directions.N != Direction
+              || Directions.S != Direction)
             {
                 bounds.Y = Bounds.Y;
             }
@@ -117,19 +117,6 @@ namespace BarRoomBrawl
             Punch punch = new Punch("Player", punchLoc, bounds, 0.0f, Direction, Id + 200, Id, Drunkenness);
 
             //finesse the location
-            if ( Directions.S == Direction
-              || Directions.SE == Direction
-              || Directions.SW == Direction)
-            {
-                punchLoc.Y += (Bounds.Y + punch.Bounds.Y + 5);
-            }
-            else if (Directions.N == Direction
-              || Directions.NE == Direction
-              || Directions.NW == Direction)
-            {
-                punchLoc.Y -= (2 * punch.Bounds.Y + 5);
-            }
-
             if (Directions.W == Direction
               || Directions.SW == Direction
               || Directions.NW == Direction)
@@ -143,10 +130,8 @@ namespace BarRoomBrawl
                 punchLoc.X += (Bounds.X + punch.Bounds.X + 5);
             }
 
-            
-
             punch.Location = punchLoc;
-            
+
             return punch;
         }
 

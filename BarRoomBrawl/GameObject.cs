@@ -40,13 +40,13 @@ namespace BarRoomBrawl
             return directionTransforms[offset];
         }
 
-        protected int[] animationFPS;
+        protected float animationFPS;
         protected int[] frameCounts;
         protected Vector2[] frameBounds;
         protected int[] frameVerticalOffset;
         protected int currentFrame;
         float totalElapsedFrameTime;
-        const int targetFPS = 30;
+        const float targetFPS = 30f;
 
         public int Id { get; set; }
         public Vector2 Location { get; set; }
@@ -54,20 +54,21 @@ namespace BarRoomBrawl
         public float Speed { get; set; }
         protected virtual int CurrentAnimationId { get; set; }
         protected int FrameVerticalOffset { get { return frameVerticalOffset[CurrentAnimationId]; } }
-        protected float TimePerFrame { get { return (float)animationFPS[CurrentAnimationId] / targetFPS; } }
+        protected virtual float TimePerFrame { get { return targetFPS / animationFPS / 1000; } }
         protected int FrameCount { get { return frameCounts[CurrentAnimationId]; } }
 
         public Directions Direction { get; set; }
         public bool Mobile {get; set;}
         public bool Solid { get; set; }
-        public bool Animated { get; set; } 
+        public bool Animated { get; set; }
+        public bool FlippedHorizontally { get; set; }
 
         public GameObject(string texture, Vector2 bounds, Vector2 startLoc, float startSpeed, Directions startDir, int id)
         {
             m_textureName = texture;
             frameBounds = new Vector2[] { bounds };
             frameVerticalOffset = new int[] { 0 };
-            animationFPS = new int[] { 2 };
+            animationFPS = .5f;
             CurrentAnimationId = 0;
             Location = startLoc;
             Speed = startSpeed;
@@ -76,6 +77,7 @@ namespace BarRoomBrawl
             Mobile = true;
             Solid = false;
             Animated = false;
+            FlippedHorizontally = false;
         }
 
         protected GameObject()
@@ -112,7 +114,10 @@ namespace BarRoomBrawl
         public virtual void Draw(Dictionary<String,Texture2D> tdict, SpriteBatch batch)
         {
             Rectangle sourceRect = new Rectangle(currentFrame * (int)Bounds.X, FrameVerticalOffset, (int)Bounds.X, (int)Bounds.Y);
-            batch.Draw(tdict[m_textureName], Location, sourceRect, Color.White);
+            Rectangle destRect = new Rectangle((int)Location.X, (int)Location.Y, (int)Bounds.X, (int)Bounds.Y);
+            SpriteEffects effect = FlippedHorizontally? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            batch.Draw(tdict[m_textureName], destRect, sourceRect, Color.White, 0.0f, Vector2.Zero, effect, 0.0f); 
         }
 
         public virtual void Update(GameTime gameTime, List<GameObject> objects, double xd = 0, double yd = 0)
@@ -128,31 +133,33 @@ namespace BarRoomBrawl
 
             double elapsed = gameTime.ElapsedGameTime.TotalMilliseconds;
             double distance = elapsed * Speed;
-            
-            Vector2 dir = getMovementVector(Direction) * (float)distance;
-            dir.X += (float)xd;
-            dir.Y += (float)yd;
 
-            Vector2 oldLocation = Location;
-            Location = Location + dir;
-
-            if (Solid)
+            if (Directions.None != Direction)
             {
-                foreach (GameObject o in objects)
-                {
-                    if (o.Id == this.Id || !o.Solid)
-                    {
-                        continue;
-                    }
-                    if (Intersects(o))
-                    {
-                        Location = oldLocation;
-                        break;
-                    }
+                Vector2 dir = getMovementVector(Direction) * (float)distance;
+                dir.X += (float)xd;
+                dir.Y += (float)yd;
 
+                FlippedHorizontally = dir.X < 0;
+
+                Vector2 oldLocation = Location;
+                Location = Location + dir;
+
+                if (Solid)
+                {
+                    foreach (GameObject o in objects)
+                    {
+                        if (o.Id == this.Id || !o.Solid)
+                        {
+                            continue;
+                        }
+                        if (Intersects(o))
+                        {
+                            Location = oldLocation;
+                            break;
+                        }
+                    }
                 }
-                    
-                
             }
         }
 

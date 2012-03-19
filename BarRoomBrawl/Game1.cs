@@ -80,7 +80,7 @@ namespace BarRoomBrawl
 
             // TODO: use this.Content to load your game content here
 
-            String[] textures = { "Player", "Table", "FloorTile2", "Whiskey", "Stout", "nottim" };
+            String[] textures = { "Player", "Table", "FloorTile2", "Whiskey", "Stout", "nottim", "notchrisgibson" };
 
             foreach(String texture in textures)
             {
@@ -91,20 +91,20 @@ namespace BarRoomBrawl
 
         protected void StartGame()
         {
-            m_player = new Player("Player", Vector2.Zero, 0.0f, GameObject.Directions.E, 0);
+            m_player = new Player("nottim", new Vector2(rand.Next(2400),rand.Next(2400)), 0.0f, GameObject.Directions.E, 0);
             m_state.GameObjects.Add(m_player);
 
             AddTables(50);
 
-            AddPlayer();
+            AddEnemy();
 
         }
 
-        protected void AddPlayer()
+        protected void AddEnemy()
         {
             int xpos = rand.Next(2400);
             int ypos = rand.Next(2400);
-            Player player2 = new Player("Player", new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
+            Player player2 = new Enemy("notchrisgibson", new Vector2(xpos, ypos), 0.0f, GameObject.Directions.None, 500 + enemycount);
             player2.Drunkenness = 10000;
             enemycount++;
             m_state.GameObjects.Add(player2);
@@ -162,16 +162,21 @@ namespace BarRoomBrawl
                                                          + (int)(state.IsKeyDown(Keys.S) ? GameObject.Directions.S : 0)
                                                          + (int)(state.IsKeyDown(Keys.A) ? GameObject.Directions.W : 0)
                                                          + (int)(state.IsKeyDown(Keys.D) ? GameObject.Directions.E : 0));
+            
+            
             if(state.IsKeyDown(Keys.Space))
             {
                 Punch p = m_player.ThrowPunch();
-                m_state.GameObjects.Add(p);
+                if (null != p)
+                {
+                    m_state.GameObjects.Add(p);
+                }
             }
 
             if (addplayertimer > 15000)
             {
                 Console.WriteLine("So a guy walks into a bar...");
-                AddPlayer();
+                AddEnemy();
                 addplayertimer = 0;
             }
             if (stouttimer > 1000)
