@@ -15,14 +15,14 @@ var clients = []
 var gameObjects = generateGameState()
 
 // Broadcast game state updates every 50 ms
-// setInterval(function () {
-//   if (clients.length) {
-//     // client
-//     clients.forEach(function (client) {
-//       client.write(JSON.stringify({"messageType": "update", "gameState": gameObjects}))
-//     })
-//   }
-// }, 2000)
+setInterval(function () {
+  if (clients.length) {
+    // client
+    for (var i = 1; i < clients.length; i++) {
+      clients[i].write(JSON.stringify({"messageType": "update", "gameState": gameObjects}))
+    })
+  }
+}, 2000)
 
 // Create a server instance, and chain the listen function to it
 // The function passed to net.createServer() becomes the event handler for the 'connection' event
